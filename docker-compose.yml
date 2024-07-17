@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  mysqldb:
+    build: ./Backend/db
+    container_name: mysqldb
+    env_file:
+      - "./Backend/db/.env"
+    ports:
+      - "3306:3306"
+
+  backend:
+    build:
+      context: ./Backend/django_backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Backend:/app
+    restart: always
+    depends_on:
+      - mysqldb
+    command: |
+      bash -c "python wait_mysql.py &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    image: frontend
+    container_name: frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
