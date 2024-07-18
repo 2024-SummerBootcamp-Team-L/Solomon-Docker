@@ -33,3 +33,25 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
+    volumes:
+      - ./Frontend/:/frontend
+      - build_folder:/frontend/dist
+      - /frontend/node_modules
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - 80:80
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - build_folder:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  build_folder: null
