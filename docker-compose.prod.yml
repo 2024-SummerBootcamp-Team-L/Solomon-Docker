@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  mysqldb:
+    build: ./Backend/db
+    container_name: mysqldb
+    env_file:
+      - "./Backend/db/.env"
+    ports:
+      - "3306:3306"
+
+  backend:
+    build:
+      context: ./Backend/django_backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Backend:/app
+    restart: always
+    depends_on:
+      - mysqldb
+    command: |
+      bash -c "python wait_mysql.py &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    image: frontend
+    container_name: frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./Frontend/:/frontend
+      - build_folder:/frontend/dist
+      - /frontend/node_modules
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - 80:80  # http
+      - 443:443  # https
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - build_folder:/var/www/frontend
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+      - frontend
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  build_folder: null
