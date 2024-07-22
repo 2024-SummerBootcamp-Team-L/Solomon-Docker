@@ -6,3 +6,4 @@ elk/elasticsearch/dashboard
 elk/filebeat/filebeat-8.14.3-darwin-x86_64
 elk/filebeat/filebeat-8.14.3-darwin-x86_64.tar.gz
 elk/kibana/dashboard
+
