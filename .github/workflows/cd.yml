@@ -1,0 +1,39 @@
+# 워크플로우 이름 설정
+name: Deploy Spring Boot App
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    # 실행 환경 설정
+    runs-on: ubuntu-latest
+    environment: envs
+
+    steps:
+      # 저장공간 설정
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      # Docker 이미지를 서버로 전송
+      - name: file to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_SSH_HOST }}
+          username: ${{ secrets.REMOTE_SSH_USERNAME }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          source: ./*
+          target: ./
+
+      # 서버에서 Docker 이미지 빌드 및 실행
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_SSH_HOST }}
+          username: ${{ secrets.REMOTE_SSH_USERNAME }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          script: ${{ secrets.DEPLOY_SCRIPT }}
