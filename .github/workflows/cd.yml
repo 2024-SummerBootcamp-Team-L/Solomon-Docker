@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.REMOTE_SSH_USERNAME }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           source: ./*
-          target: ./
+          target: ~/Solomon-Docker
 
       # 서버에서 Docker 이미지 빌드 및 실행
       - name: Deploy to Server
