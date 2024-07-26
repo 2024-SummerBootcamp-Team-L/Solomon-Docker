@@ -1,6 +1,6 @@
-[submodule "Frontend"]
-	path = Frontend
-	url = git@github.com:2024-SummerBootcamp-Team-L/Solomon-Docker.git
 [submodule "Backend"]
 	path = Backend
-	url = git@github.com:2024-SummerBootcamp-Team-L/Solomon-Docker.git
+	url = https://github.com/2024-SummerBootcamp-Team-L/Backend.git
+[submodule "Frontend"]
+	path = Frontend
+	url = https://github.com/2024-SummerBootcamp-Team-L/Frontend.git
