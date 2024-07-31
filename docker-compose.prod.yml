@@ -21,11 +21,14 @@ services:
     restart: always
     depends_on:
       - mysqldb
+    environment:
+      - PYTHONPATH=/app
     command: |
       bash -c "python wait_mysql.py &&
       python manage.py makemigrations &&
       python manage.py migrate &&
-      python manage.py runserver 0.0.0.0:8000"
+      gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application"
+# python manage.py runserver 0.0.0.0:8000
 
   frontend:
     image: frontend
